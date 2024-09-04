@@ -199,7 +199,7 @@ def plot_leo_feat_RFI(fn, ds, lv2, fdf):
     [ax[0].text((i[1]-lv2.startTime)/3600+hour_init, y=10, s=i[0]) for i in enumerate(fdf.time)]
     [ax[2].text((i[1]-lv2.startTime)/3600+hour_init, y=.1, s=i[0]) for i in enumerate(fdf.time)]
     #fig.tight_layout()
-    plt.savefig('/home/stdi2687/gnss-leo-data/figures/labeling_rfi/%s_features.png'%fn)
+    plt.savefig('/home/stdi2687/leo-ml/figures/labeling_rfi2/%s_features.png'%fn)
     plt.close()
 
 #####ADDDED
