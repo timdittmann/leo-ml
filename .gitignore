@@ -165,3 +165,7 @@ cython_debug/
 *.nc
 *spire_comms_df.pkl
 *tar.gz
+
+/data/data/
+/figures/*
+!/figures/manuscript/*
