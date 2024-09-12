@@ -55,7 +55,7 @@ def class_map_multi(y):
     return y_new
 labels=['Scint','Quiet','RFI','Artifact','LowSNR','Unknown'] #'oa',
 labels=['Scint','Quiet','RFI','Artifact','Unknown'] #'oa',
-labels=['Scint','Quiet','RFI','Artifact/Unknown','Severe Scint']
+labels=['Scint','Quiet','RFI','Artifact/Unknown','Severe Scint', 'Comms Link']
 
 def get_meta_drop(df):
     times=df['time'].values
