@@ -4,13 +4,17 @@ import numpy as np
 
 import pandas as pd
 from matplotlib.patches import Rectangle
+import os
+import matplotlib.pyplot as plt
+import geopandas as gpd
 
 import sys  
 sys.path.insert(1, '/home/stdi2687/gnss-leo-data/scripts')
 
-from feature_extract_util import *
+from feature_extract_util import load_leo, extract_fs
 
 '''
+ORIGINAL LABLES APPLIED TO FEATURE SET TARGETS
 ie = 1 = e region ionospheric scintillation
 if = 2 = f region is
 n =  3 = NO disturbance
@@ -70,18 +74,9 @@ def df_2_Xy(df):
     #drop_cols=[ 'rfi_max','time2', 'elevation_m','slip_L1', 'slip_L2']
     df=df.drop(columns=drop_cols)
 
-    #Drop low SNR?
-    #if "y_" in df:
-    #    df = df[df["y_"] != 9]
 
     # Drop nans, inf, etc
     df=df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
-    '''
-    fs_dict={"times":df['time'].values, "lats":df["lat_m"].values,"lons":df["lon_m"].values,
-             "occ_hts":df['occheight_m'].values,
-             'xLeo_m':df['xLeo_m'].values, 'yLeo_m':df['yLeo_m'].values,'zLeo_m':df['zLeo_m'].values,
-             'xGnss_m':df['xGnss_m'].values, 'yGnss_m':df['yGnss_m'].values,'zGnss_m':df['zGnss_m'].values,}
-    '''
     fs_meta_cols=['time', 'lat_m','lon_m','occheight_m','sample']
     # for later version where I add extra meta
     if 'xLeo_m' in df.columns:
@@ -136,21 +131,29 @@ def class_map_RFI(y):
     y_new[y==2]=5
     return y_new
 
-def sample_2_DFandXy(sample, ml_model):
+def lv1b_lv2_sense_path(sample):
+    fn1 = '/media/datastore/mirror/spwxdp/repro4/spire/level1b/scnPhs/%s/scnPhs_%s.0001_nc'%(sample[:8],sample)
+    fn2 = '/media/datastore/mirror/spwxdp/repro4/spire/level2/scnLv2/%s/scnLv2_%s.0001_nc'%(sample[:8],sample)
+    return fn1, fn2
+
+def sample_2_DFandXy(sample, ml_model,lv1b_path, lv2_path):
     feature_pkl='../data/data/feature_sets/%s.pkl' %sample
-    fn='/media/datastore/mirror/spwxdp/repro4/spire/level1b/scnPhs/%s/scnPhs_%s.0001_nc'%(sample[:8],sample)
-    lv1=load_leo(fn)
-    fn='/media/datastore/mirror/spwxdp/repro4/spire/level2/scnLv2/%s/scnLv2_%s.0001_nc'%(sample[:8],sample)
-    lv2=load_leo(fn)
+    
+    lv1=load_leo(lv1b_path)
+    lv2=load_leo(lv2_path)
 
-    fdf=pd.read_pickle(feature_pkl)
+    # if feature set already exists, read it in
+    if os.path.isfile(feature_pkl):
+        fdf=pd.read_pickle(feature_pkl)
+    # else extract one from raw data
+    if not os.path.isfile(feature_pkl):
+        fdf=extract_fs(lv1,lv2)
+
     fdf['sample']=len(fdf)*[sample]
-
     X, y, feature_names, fs_dict=df_2_Xy(fdf)
     #--- test model
     y_pred = ml_model.predict(X)
     print(y_pred)
-    #print(y)
     # map downlink labels to Comms link
     label_df=pd.read_pickle('../data/converted_labels_comms.pkl')
     if sample in label_df.Filename.values:
@@ -238,4 +241,61 @@ def plot_leo_ml_multi(sample, ds, lv2, y_pred, y_true, times, labels, plot_f=Fal
           fancybox=True, shadow=True)
     fig.tight_layout()
     if plot_f:
+        os.makedirs('../manuscript', exist_ok=True)
         plt.savefig("../manuscript/%s.png" %sample, dpi=300)
+
+
+def all_fs_2_singleFSfile(all_files_f, save_fs, single_file_dir, single_file_fn):
+    fdf_li=[]
+    for filez in all_files_f:
+        fn="../data/feature_sets_all_v2/%s" %filez
+        sample=filez[:-4]
+        try:
+            if os.path.isfile(fn):
+                fdf=pd.read_pickle(fn)
+                fdf['sample']=len(fdf)*[sample]
+                fdf_li+=[fdf]
+            else:
+                pass
+        except:
+            pass
+    all_fdf=pd.concat(fdf_li, axis=0, ignore_index=True)
+    if save_fs:
+        os.makedirs(single_file_dir)
+        all_fdf.to_pickle(os.path.join(single_file_dir, single_file_fn))
+    return all_fdf
+
+
+def map_fs(lons, lats, y_pred):
+    #https://medium.com/@kavee625/plotting-data-on-the-world-map-with-geopandas-f03742615196
+  
+  #from cartopy import crs as ccrs
+  # Getting world map data from geo pandas
+  worldmap = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
+
+  # Creating axes and plotting world map
+  fig, ax = plt.subplots(figsize=(16, 10))
+  worldmap.plot(color="lightgrey", ax=ax)
+
+  #robinson = ccrs.Robinson().proj4_init
+  #worldmap.to_crs(robinson).plot(color="lightgrey", ax=ax)
+
+  x = lons
+  y = lats
+  #z = df['spireid']
+  plt.scatter(x, y, 
+                s=0.2,#*z,
+                c=y_pred,
+                alpha=1,             
+                cmap='autumn'
+              )
+  #plt.colorbar(label='Number of tourists')
+
+  # Creating axis limits and title
+  plt.xlim([-180, 180])
+  plt.ylim([-90, 90])
+
+  #plt.title("Tourist arrivals from main countries to Sri Lanka\n  Year : 2021")
+  plt.xlabel("Longitude")
+  plt.ylabel("Latitude")
+  plt.show()

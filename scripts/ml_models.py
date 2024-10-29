@@ -1,8 +1,16 @@
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC 
+from xgboost import XGBClassifier
+from sklearn.model_selection import GridSearchCV
+
+from joblib import dump
+
+import os
+
 def rf_model_train(X_train, y_train, version):
     #--- train models
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.pipeline import Pipeline
-    from sklearn.preprocessing import StandardScaler
     pipeline = Pipeline([
         ('scaler', StandardScaler()),
         ('clf', RandomForestClassifier(random_state = 42))
@@ -14,7 +22,7 @@ def rf_model_train(X_train, y_train, version):
         #'clf__criterion' : ['gini', 'entropy'],
         'clf__class_weight' : [None, 'balanced', 'balanced_subsample']
     }
-    from sklearn.model_selection import GridSearchCV
+    
     model = GridSearchCV(pipeline, param_grid = parameters, cv = 5, n_jobs=20, scoring="f1_weighted")
     model.fit(X_train, y_train)
 
@@ -26,19 +34,13 @@ def rf_model_train(X_train, y_train, version):
     #    print("      %f (%f) with: %r" % (mean, stdev, param))
 
     #-- Save model
-    from joblib import dump, load
+    os.makedirs('../models', exist_ok=True)
     dump(model, '../models/%s_rf-model.joblib' %version)
     
     return model
 
 def xgb_model_train(X_train, y_train, version):
     #--- train model
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.pipeline import Pipeline
-    from sklearn.preprocessing import StandardScaler
-    from xgboost import XGBClassifier
-    from sklearn.model_selection import GridSearchCV
-
     estimator = XGBClassifier(
         objective= 'multi:softmax',
         nthread=4,
@@ -68,14 +70,11 @@ def xgb_model_train(X_train, y_train, version):
     #    print("      %f (%f) with: %r" % (mean, stdev, param))
 
     #-- Save model
-    from joblib import dump, load
     dump(model, '../models/%s_xgb-model.joblib' %version)
 
     return model
 
 def svc_model_train(X_train, y_train, version):
-    from sklearn.svm import SVC 
-    from sklearn.model_selection import GridSearchCV 
   
     # defining parameter range 
     param_grid = {'C': [0.1, 1, 10, 100, 1000],  
@@ -93,7 +92,6 @@ def svc_model_train(X_train, y_train, version):
     #    print("      %f (%f) with: %r" % (mean, stdev, param))
 
     #-- Save model
-    from joblib import dump, load
     dump(model, '../models/%s_svc-model.joblib' %version)
 
     return model
