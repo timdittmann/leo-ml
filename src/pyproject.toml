@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnssroML"
+authors = [
+    {name = "Tim Dittmann", email = "stdi2687@colorado.edu"}
+]
+description = "tools for an ML classifier of commercial GNSS RO LEO data"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "requests",
+    "pandas",
+    "geopandas",
+    "matplotlib",
+    "scipy",
+    "xarray==0.17.0",
+    "netCDF4",
+    "scikit-learn",
+    "xgboost",
+    "seaborn",
+    "pyarrow",
+    "IPyKernel",
+]
