@@ -1,5 +1,11 @@
 # GNSS-LEO Notebook Summary
+
+The maintained notebook you should look at is `navigation_2024_manuscript.ipynb`.  This captures the version of this experiment that is submitted for publication.
+
+The rest of these notebooks are in varying states but kept here for thoroughness.  
+
 Effectively chronologic summary, if it helps with context (or at least for me to remember :smile:)
+
 1. initial experiment:
 
 * label_ro_nb.ipynb
