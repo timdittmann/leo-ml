@@ -9,9 +9,8 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 
 import sys  
-sys.path.insert(1, '/home/stdi2687/gnss-leo-data/scripts')
+from gnssroML.feature_extract_util import load_leo, extract_fs
 
-from feature_extract_util import load_leo, extract_fs
 
 '''
 ORIGINAL LABLES APPLIED TO FEATURE SET TARGETS
