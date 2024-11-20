@@ -75,7 +75,7 @@ def df_2_Xy(df):
 
 
     # Drop nans, inf, etc
-    df=df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
+    df = df.dropna()
     fs_meta_cols=['time', 'lat_m','lon_m','occheight_m','sample']
     # for later version where I add extra meta
     if 'xLeo_m' in df.columns:
