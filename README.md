@@ -9,7 +9,9 @@ For further scientific context, this repository is published in conjunction with
 This manuscript's analysis is covered in `notebooks/navigation_2024_manuscript.ipynb`.  The authors also wish to acknowledge the openly-developed software used in this analysis: Numpy, Pandas, Xarray, Scikit-learn, XGBoost, and matplotlib.
 
 **Open Data**
-This manuscript's feature sets are hosted at [Zenodo](TODO: Zenodo link).
+This manuscript's feature sets are hosted at [Zenodo](https://zenodo.org/records/14081023).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14172456.svg)](https://doi.org/10.5281/zenodo.14172456)
+
 
 **Acknowledgements**
 The data used in this analysis was made possible by the NOAA Commercial Data Program and UCAR/NOAA Science Collaboration Program.   
