@@ -9,9 +9,8 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 
 import sys  
-sys.path.insert(1, '/home/stdi2687/gnss-leo-data/scripts')
+from gnssroML.feature_extract_util import load_leo, extract_fs
 
-from feature_extract_util import load_leo, extract_fs
 
 '''
 ORIGINAL LABLES APPLIED TO FEATURE SET TARGETS
@@ -76,7 +75,7 @@ def df_2_Xy(df):
 
 
     # Drop nans, inf, etc
-    df=df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
+    df = df.dropna()
     fs_meta_cols=['time', 'lat_m','lon_m','occheight_m','sample']
     # for later version where I add extra meta
     if 'xLeo_m' in df.columns:
